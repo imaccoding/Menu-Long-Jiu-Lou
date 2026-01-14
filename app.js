@@ -223,28 +223,4 @@ window.addEventListener("load", () => {
     modalImg.src = "";
     document.body.style.overflow = ""; // คืนค่าเดิม
   };
-
-  // ✅ เปิดเมื่อกดปุ่ม ⤢ เท่านั้น
-  document.addEventListener("click", (e) => {
-    const btn = e.target.closest(".fs-open");
-    if (!btn) return;
-
-    const img = btn.parentElement.querySelector(".pageImg");
-    if (!img) return;
-
-    open(img.getAttribute("src"));
-  });
-
-  // ปิดด้วยปุ่ม X
-  btnClose.addEventListener("click", close);
-
-  // ปิดเมื่อกดพื้นหลังมืด (คลิกนอกภาพ)
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) close();
-  });
-
-  // ปิดด้วย ESC
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal.classList.contains("open")) close();
-  });
 })();
