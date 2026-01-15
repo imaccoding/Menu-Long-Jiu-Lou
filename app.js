@@ -1,118 +1,39 @@
-console.log("Announcement script loaded");
-
 (() => {
   const viewer = document.getElementById("viewer");
   const pages = Array.from(document.querySelectorAll(".page"));
-  const total = pages.length;
+  if (!viewer || pages.length === 0) return;
 
+  const total = pages.length;
   const pageNow = document.getElementById("pageNow");
   const pageTotal = document.getElementById("pageTotal");
-  const btnPrev = document.getElementById("btnPrev");
-  const btnNext = document.getElementById("btnNext");
   const dotsWrap = document.getElementById("dots");
   const hint = document.getElementById("hint");
 
-  pageTotal.textContent = total;
+  if (pageTotal) pageTotal.textContent = total;
 
-  // build dots
-  const dots = pages.map((p, i) => {
-    const d = document.createElement("button");
-    d.className = "dot";
-    d.type = "button";
-    d.setAttribute("aria-label", `ไปหน้า ${i + 1}`);
-    d.addEventListener("click", () => scrollToIndex(i));
-    dotsWrap.appendChild(d);
-    return d;
-  });
-
-  let currentIndex = 0;
-
- function setActive(index) {
-  currentIndex = index;
-
-  pageNow.textContent = String(index + 1);
-  dots.forEach((d, i) => d.classList.toggle("active", i === index));
-
-  // ✅ Hint แสดงเฉพาะหน้าแรกเท่านั้น
-  if (index === 0) hint.classList.remove("hide");
-  else hint.classList.add("hide");
-}
-
- let isAnimating = false;
-
-function scrollToIndex(index) {
-  const target = pages[index];
-  if (!target || isAnimating) return;
-
-  // ✅ อ่าน padding-top ของ viewer จาก CSS จริง
-  const padTop = parseFloat(getComputedStyle(viewer).paddingTop) || 0;
-
-  // ✅ offsetTop จะรวม padding ของ viewer อยู่แล้ว → ต้องหักออก
-  const targetTop = Math.max(0, target.offsetTop - padTop);
-
-  const start = viewer.scrollTop;
-  const diff = targetTop - start;
-  if (Math.abs(diff) < 2) return;
-
-  isAnimating = true;
-
-  const prevSnap = viewer.style.scrollSnapType;
-  viewer.style.scrollSnapType = "none";
-
-  const base = 420;
-  const extra = Math.min(380, Math.abs(diff) * 0.25);
-  const duration = base + extra;
-
-  const startTime = performance.now();
-  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-
-  function step(now) {
-    const t = Math.min(1, (now - startTime) / duration);
-    viewer.scrollTop = start + diff * easeOutCubic(t);
-
-    if (t < 1) {
-      requestAnimationFrame(step);
-    } else {
-      // ✅ ล็อกตำแหน่งให้ตรง “หน้าเป๊ะ” (ไม่ใช้ scrollIntoView)
-      viewer.scrollTop = targetTop;
-
-      viewer.style.scrollSnapType = prevSnap || "y mandatory";
-      isAnimating = false;
-    }
+  // build dots (ถ้ามี)
+  const dots = [];
+  if (dotsWrap) {
+    pages.forEach((_, i) => {
+      const d = document.createElement("button");
+      d.className = "dot";
+      d.type = "button";
+      d.setAttribute("aria-label", `ไปหน้า ${i + 1}`);
+      d.addEventListener("click", () => scrollToIndex(i));
+      dotsWrap.appendChild(d);
+      dots.push(d);
+    });
   }
 
-  requestAnimationFrame(step);
-}
+  let currentIndex = 0;
+  function setActive(index) {
+    currentIndex = index;
+    if (pageNow) pageNow.textContent = String(index + 1);
+    dots.forEach((d, i) => d.classList.toggle("active", i === index));
+    if (hint) hint.classList.toggle("hide", index !== 0);
+  }
 
-
-  // observe which page is visible
-  const io = new IntersectionObserver((entries) => {
-    // pick the most visible entry
-    const visible = entries
-      .filter(e => e.isIntersecting)
-      .sort((a, b) => (b.intersectionRatio - a.intersectionRatio))[0];
-
-    if (!visible) return;
-
-    const idx = pages.indexOf(visible.target);
-    if (idx >= 0) setActive(idx);
-
-    // preload next/prev images (ช่วยให้ไม่กระตุก)
-    preloadAround(idx);
-  }, { root: viewer, threshold: [0.55, 0.7, 0.85] });
-
-  pages.forEach(p => io.observe(p));
-
-  btnPrev.addEventListener("click", () => scrollToIndex(Math.max(0, currentIndex - 1)));
-  btnNext.addEventListener("click", () => scrollToIndex(Math.min(total - 1, currentIndex + 1)));
-
-  // keyboard support (desktop)
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowUp") btnPrev.click();
-    if (e.key === "ArrowDown") btnNext.click();
-  });
-
-  // preload function
+  // ✅ preloaded ต้องประกาศก่อนใช้ (แก้ error ตัวที่ 2)
   const preloaded = new Set();
   function preloadImg(src) {
     if (!src || preloaded.has(src)) return;
@@ -128,11 +49,76 @@ function scrollToIndex(index) {
     preloadImg(prev);
   }
 
-  // initial state + preload first/second
+  let scrollAnimToken = 0;
+  function scrollToIndex(index) {
+    const target = pages[index];
+    if (!target) return;
+
+    scrollAnimToken++;
+    const myToken = scrollAnimToken;
+
+    const padTop = parseFloat(getComputedStyle(viewer).paddingTop) || 0;
+    const targetTop = Math.max(0, target.offsetTop - padTop);
+
+    const start = viewer.scrollTop;
+    const diff = targetTop - start;
+
+    if (Math.abs(diff) < 2) {
+      viewer.scrollTop = targetTop;
+      return;
+    }
+
+    const prevSnap = viewer.style.scrollSnapType;
+    viewer.style.scrollSnapType = "none";
+
+    const base = 420;
+    const extra = Math.min(380, Math.abs(diff) * 0.25);
+    const duration = base + extra;
+
+    const startTime = performance.now();
+    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+    function step(now) {
+      if (myToken !== scrollAnimToken) return;
+
+      const t = Math.min(1, (now - startTime) / duration);
+      viewer.scrollTop = start + diff * easeOutCubic(t);
+
+      if (t < 1) requestAnimationFrame(step);
+      else {
+        viewer.scrollTop = targetTop;
+        viewer.style.scrollSnapType = prevSnap || "y mandatory";
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  // observe visible page
+  const io = new IntersectionObserver((entries) => {
+    const visible = entries
+      .filter(e => e.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+    if (!visible) return;
+    const idx = pages.indexOf(visible.target);
+    if (idx >= 0) {
+      setActive(idx);
+      preloadAround(idx);
+    }
+  }, { root: viewer, threshold: [0.55, 0.7, 0.85] });
+
+  pages.forEach(p => io.observe(p));
+
+  // keyboard support (ถ้าต้องการ)
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp") scrollToIndex(Math.max(0, currentIndex - 1));
+    if (e.key === "ArrowDown") scrollToIndex(Math.min(total - 1, currentIndex + 1));
+  });
+
   setActive(0);
   preloadAround(0);
-
 })();
+
 
 // Contact toggle
 (() => {
