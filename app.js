@@ -226,29 +226,29 @@ window.addEventListener("load", () => {
 })();
 (() => {
   // =========================
-  // CONFIG: เรียงลำดับตาม array
+  // CONFIG: เรียงลำดับตาม array ใส่ภาพ Aw ที่ต้องการประกาศ
   // =========================
   const ANNOUNCEMENTS = [
     {
       id: "a1",
-      imageSrc: "images/announce-1.jpg",
+      imageSrc: "images/pro-holi/announce-1.jpg",
       linkToFull: "images/announce-1.jpg",
-      start: "2026-01-15 00:00",
-      end:   "2026-01-20 23:59",
+      start: "2026-01-15 09:20",
+      end:   "2026-01-20 09:25",
     },
     {
       id: "a2",
-      imageSrc: "images/announce-2.jpg",
+      imageSrc: "images/pro-holi/announce-2.jpg",
       linkToFull: "images/announce-2.jpg",
-      start: "2026-01-15 00:00",
-      end:   "2026-01-20 23:59",
+      start: "2026-01-15 09:26",
+      end:   "2026-01-20 09:30",
     },
     {
       id: "a3",
-      imageSrc: "images/announce-3.jpg",
+      imageSrc: "images/pro-holi/announce-3.jpg",
       linkToFull: "images/announce-3.jpg",
-      start: "2026-01-15 00:00",
-      end:   "2026-01-20 23:59",
+      start: "2026-01-15 09:30",
+      end:   "2026-01-20 09:35",
     },
   ];
 
