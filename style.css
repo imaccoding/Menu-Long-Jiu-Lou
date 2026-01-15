@@ -428,4 +428,12 @@ transform: scale(.92);
 body.announce-open{
   overflow: hidden;
 }
+.announce-card, .announce-close { touch-action: manipulation; }
 
+/* ล็อกการเลื่อนเมนูตอนประกาศเปิด */
+body.announce-open #viewer{
+  overflow: hidden !important;
+  scroll-snap-type: none !important;
+  overscroll-behavior: contain;
+  touch-action: none;            /* กันปัดเลื่อนบนมือถือ */
+}

@@ -158,10 +158,6 @@
   menu.querySelectorAll("a").forEach(a => a.addEventListener("click", close));
 })();
 
-window.addEventListener("load", () => {
-  viewer.scrollTo({ top: 0, behavior: "auto" });
-  setActive(0);
-});
 (function () {
     const wrap = document.getElementById("contactWrap");
     const btn = document.getElementById("contactToggle");
@@ -191,6 +187,10 @@ window.addEventListener("load", () => {
     menu.querySelectorAll("a").forEach(a => a.addEventListener("click", closeMenu));
   })();
 
+const viewer = document.getElementById("viewer");
+let prevViewerOverflow = "";
+let prevSnap = "";
+
   (() => {
   // =========================
   // CONFIG: ใส่ได้หลายภาพ (เรียงตามลำดับใน array)
@@ -201,7 +201,7 @@ window.addEventListener("load", () => {
       imageSrc: "images/pro-holi/announce-1.jpg",
       linkToFull: "", 
       start: "2026-01-14 00:00",
-      end:   "2026-01-20 15:00",
+      end:   "2026-01-20 10:00",
     },
     {
       id: "a2",
@@ -296,6 +296,15 @@ window.addEventListener("load", () => {
     overlay.hidden = false;
     overlay.setAttribute("aria-hidden", "false");
     document.body.classList.add("announce-open");
+    document.body.classList.add("announce-open");
+
+if (viewer) {
+  prevViewerOverflow = viewer.style.overflow;
+  prevSnap = viewer.style.scrollSnapType;
+  viewer.style.overflow = "hidden";
+  viewer.style.scrollSnapType = "none";
+}
+
   }
 
   function closeAnnouncement(markSeen = true) {
@@ -304,6 +313,13 @@ window.addEventListener("load", () => {
     document.body.classList.remove("announce-open");
 
     if (markSeen) localStorage.setItem(onceKey, "1");
+    document.body.classList.remove("announce-open");
+
+if (viewer) {
+  viewer.style.overflow = prevViewerOverflow || "";
+  viewer.style.scrollSnapType = prevSnap || "";
+}
+
   }
 
   // ปุ่มปิด
