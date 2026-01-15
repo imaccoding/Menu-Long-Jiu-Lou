@@ -209,7 +209,6 @@
           <button class="btn btnCopy" id="btnCopy" type="button">🔗 คัดลอกลิงก์</button>
         </div>
       </div>
-
       <section class="card" id="promoList" hidden>
   <div class="content">
     <h2 class="promoHeading">โปรโมชันที่กำลังแสดงอยู่</h2>
@@ -224,6 +223,16 @@
       ขณะนี้ ทางภัตตาคาร หลง จิ่ว เหลา ยังไม่มีโปรโมชัน<br>
       สอบถามข้อมูลเพิ่มเติมได้ที่: 02-757-6888 หรือ Line OA: @longjiulou
     </div>
+
+    <section class="card" id="promoEmpty">
+    <div class="content">
+    <h2 class="promoHeading">ยังไม่มีโปรโมชันในช่วงนี้</h2>
+    <p style="color:rgba(246,246,246,.72);line-height:1.7;margin:8px 0 0">
+      โปรโมชันจะถูกแสดงอัตโนมัติตามช่วงวันที่/เวลาที่ตั้งไว้ค่ะ
+    </p>
+  </div>
+
+</section>
   </main>
 
   <div class="toast" id="toast">คัดลอกลิงก์แล้ว</div>
@@ -399,6 +408,24 @@
     const activePromos = PROMOTIONS.filter(p => isActive(p, nowMs));
     renderList(activePromos);
   }
+  (() => {
+  const empty = document.getElementById("promoEmpty");
+  const list  = document.getElementById("promoList");
+  const card  = document.getElementById("promoCard");
+  const err   = document.getElementById("promoError");
+  if (!empty) return;
+
+  const params = new URLSearchParams(location.search);
+  const id = params.get("id");
+
+  // ถ้าเข้าแบบไม่มี id -> โชว์ empty (กันหน้าโล่ง)
+  if (!id) {
+    empty.hidden = false;
+    if (list) list.hidden = true;
+    if (card) card.hidden = true;
+    if (err)  err.hidden  = true;
+  }
+})();
 </script>
 
 </body>

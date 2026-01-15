@@ -339,3 +339,39 @@ let prevSnap = "";
   show();
 })();
 
+function renderList(activePromos){
+  // โชว์ list ถ้ามี
+  const list = document.getElementById("promoList");
+  const wrap = document.getElementById("listWrap");
+  const empty = document.getElementById("promoEmpty");
+
+  if (list) list.hidden = true;
+  if (empty) empty.hidden = true;
+
+  if (!activePromos || activePromos.length === 0) {
+    // ✅ ไม่มีโปร active → โชว์ข้อความแทน
+    if (empty) empty.hidden = false;
+    return;
+  }
+
+  // ✅ มีโปร active → โชว์รายการ
+  if (!list || !wrap) return;
+  list.hidden = false;
+  wrap.innerHTML = "";
+
+  activePromos.forEach(p => {
+    const a = document.createElement("a");
+    a.href = `promotion.html?id=${encodeURIComponent(p.id)}`;
+    a.className = "promoItem";
+    a.innerHTML = `
+      <img class="promoThumb" src="${p.imageSrc}" alt="">
+      <div class="promoMeta">
+        <div class="promoName">${p.title}</div>
+        <div class="promoHint">แตะเพื่อดูรายละเอียด</div>
+      </div>
+      <div class="promoGo">›</div>
+    `;
+    wrap.appendChild(a);
+  });
+}
+
