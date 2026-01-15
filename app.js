@@ -212,22 +212,22 @@ window.addEventListener("load", () => {
       id: "a1",
       imageSrc: "images/pro-holi/announce-1.jpg",
       linkToFull: "", 
-      start: "2026-01-15 09:20",
-      end:   "2026-01-20 09:25",
+      start: "2026-01-14 00:00",
+      end:   "2026-01-20 15:00",
     },
     {
       id: "a2",
       imageSrc: "images/pro-holi/announce-2.jpg",
       linkToFull: "",
-      start: "2026-01-15 09:33",
-      end:   "2026-01-27 09:35",
+      start: "2026-01-14 09:33",
+      end:   "2026-01-27 16:00",
     },
     {
       id: "a3",
       imageSrc: "images/pro-holi/announce-3.jpg",
       linkToFull: "",
-      start: "2026-01-15 09:36",
-      end:   "2026-02-03 09:38",
+      start: "2026-01-14 09:36",
+      end:   "2026-02-03 17:00",
     },
   ];
 
