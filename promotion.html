@@ -91,9 +91,14 @@
     }
 
     .actions{
-      margin-top: 14px;
-      display:flex; gap:10px; flex-wrap:wrap;
-    }
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content: flex-end;
+  align-items: center;
+}
 
     .btn{
       border:0;
@@ -109,13 +114,19 @@
     }
 
     .btnShare{
-      background: linear-gradient(135deg, rgba(202,164,90,.95), rgba(202,164,90,.72));
-      color: #1a1205;
+      background: rgba(151, 5, 5, 0.95);
+      color: #ffffff;
     }
     .btnCopy{
       background: rgba(255,255,255,.08);
       color: var(--text);
       border: 1px solid rgba(255,255,255,.10);
+    }
+    .btnShare:hover{
+        filter: brightness(1.05);
+    }
+    .btnShare:active{
+        transform: translateY(1px);
     }
 
     .toast{
@@ -186,6 +197,11 @@
       color: rgba(202,164,90,.95);
       padding: 0 6px;
     }
+    .actions .btn{
+  flex: 0 0 auto;
+}
+    .actions .btnCopy{ order: 1; }
+    .actions .btnShare{ order: 2; }
   </style>
 </head>
 
@@ -366,7 +382,7 @@
   }
 };
 
-    $("btnCopy").onclick = async () => {
+   $("btnCopy").onclick = async () => {
       try {
         await navigator.clipboard.writeText(shareUrl);
         showToast("คัดลอกลิงก์แล้ว");
@@ -374,7 +390,7 @@
         prompt("คัดลอกลิงก์นี้:", shareUrl);
       }
     };
-  }
+  } 
 
   // ====== Render: List (Active only) ======
   function renderList(activePromos){
