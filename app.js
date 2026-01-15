@@ -219,15 +219,15 @@ window.addEventListener("load", () => {
       id: "a2",
       imageSrc: "images/pro-holi/announce-2.jpg",
       linkToFull: "",
-      start: "2026-01-22 09:20",
-      end:   "2026-01-27 09:25",
+      start: "2026-01-22 09:33",
+      end:   "2026-01-27 09:35",
     },
     {
       id: "a3",
       imageSrc: "images/pro-holi/announce-3.jpg",
       linkToFull: "",
-      start: "2026-01-29 09:20",
-      end:   "2026-02-03 09:25",
+      start: "2026-01-29 09:36",
+      end:   "2026-02-03 09:38",
     },
   ];
 
