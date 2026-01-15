@@ -118,14 +118,20 @@
   })();
 </script>
 
-<!-- Holiday Artwork Overlay -->
-<div id="holidayOverlay" class="holiday-overlay" hidden>
-  <div class="holiday-card" role="dialog" aria-modal="true" aria-label="Holiday Notice">
-    <button id="holidayClose" class="holiday-close" type="button" aria-label="ปิด">✕</button>
-      <img id="holidayImg" src="" alt="Holiday artwork" />
+<!-- Holiday / Announcement Modal -->
+<div id="announceOverlay" class="announce-overlay" hidden aria-hidden="true">
+  <div class="announce-card" role="dialog" aria-modal="true" aria-label="Announcement">
+    <button id="announceClose" class="announce-close" type="button" aria-label="ปิด">✕</button>
+
+    <!-- ถ้าไม่มี linkToFull จะใช้ <img> ตรง ๆ -->
+    <a id="announceLink" class="announce-link" href="#" target="_blank" rel="noopener" hidden>
+      <img id="announceImgLink" class="announce-img" alt="Announcement artwork" />
     </a>
+
+    <img id="announceImg" class="announce-img" alt="Announcement artwork" hidden />
   </div>
 </div>
+
 
   <script src="app.js"></script>
 </body>

@@ -204,129 +204,136 @@ window.addEventListener("load", () => {
   })();
 
   (() => {
-  const modal = document.getElementById("imgModal");
-  const modalImg = document.getElementById("imgModalSrc");
-  const btnClose = document.getElementById("imgModalClose");
-
-  if (!modal || !modalImg || !btnClose) return;
-
-  const open = (src) => {
-    modalImg.src = src;
-    modal.classList.add("open");
-    modal.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden"; // ✅ ล็อกพื้นหลังไม่ให้เลื่อน
-  };
-
-  const close = () => {
-    modal.classList.remove("open");
-    modal.setAttribute("aria-hidden", "true");
-    modalImg.src = "";
-    document.body.style.overflow = ""; // คืนค่าเดิม
-  };
-})();
-(() => {
   // =========================
-  // CONFIG: เรียงลำดับตาม array ใส่ภาพ Aw ที่ต้องการประกาศ
+  // CONFIG: ใส่ได้หลายภาพ (เรียงตามลำดับใน array)
   // =========================
   const ANNOUNCEMENTS = [
     {
       id: "a1",
       imageSrc: "images/pro-holi/announce-1.jpg",
-      linkToFull: "", // ใส่ลิงค์ที่ต้องการได้เลย
+      linkToFull: "", 
       start: "2026-01-15 09:20",
       end:   "2026-01-20 09:25",
     },
     {
       id: "a2",
       imageSrc: "images/pro-holi/announce-2.jpg",
-      linkToFull: "", // ใส่ลิงค์ที่ต้องการได้เลย
-      start: "2026-01-15 09:26",
-      end:   "2026-01-20 09:30",
+      linkToFull: "",
+      start: "2026-01-22 09:20",
+      end:   "2026-01-27 09:25",
     },
     {
       id: "a3",
       imageSrc: "images/pro-holi/announce-3.jpg",
-      linkToFull: "", // ใส่ลิงค์ที่ต้องการได้เลย
-      start: "2026-01-15 09:30",
-      end:   "2026-01-20 09:35",
+      linkToFull: "",
+      start: "2026-01-29 09:20",
+      end:   "2026-02-03 09:25",
     },
   ];
 
   // =========================
   // Elements
   // =========================
-  const overlay = document.getElementById("holidayOverlay");
-  const img = document.getElementById("holidayImg");
-  const closeBtn = document.getElementById("holidayClose");
-  const link = document.getElementById("holidayLink");
+  const overlay = document.getElementById("announceOverlay");
+  const cardClose = document.getElementById("announceClose");
 
-  if (!overlay || !img || !closeBtn) return;
+  const linkWrap = document.getElementById("announceLink");
+  const imgInLink = document.getElementById("announceImgLink");
+
+  const plainImg = document.getElementById("announceImg");
+
+  if (!overlay || !cardClose || !imgInLink || !plainImg || !linkWrap) return;
 
   // =========================
-  // Helpers (เวลาไทย)
+  // Helpers: เวลาไทย
   // =========================
   function thTimeToMs(str) {
+    // "YYYY-MM-DD HH:mm" -> ISO +07:00
     return new Date(str.replace(" ", "T") + ":00+07:00").getTime();
   }
+
   function todayTH() {
+    // YYYY-MM-DD ตามเวลาไทย
     return new Date(
       new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" })
     ).toISOString().slice(0, 10);
   }
 
   const now = Date.now();
-  const today = todayTH();
 
-  // =========================
-  // เลือกเฉพาะรายการที่ active วันนี้
-  // =========================
-  const activeList = ANNOUNCEMENTS.filter(a => {
-    const s = thTimeToMs(a.start);
-    const e = thTimeToMs(a.end);
-    return now >= s && now <= e;
-  });
+  // เอารายการที่ active ตอนนี้ (เรียงตามลำดับ array)
+  const activeList = ANNOUNCEMENTS
+    .map(a => ({ ...a, startMs: thTimeToMs(a.start), endMs: thTimeToMs(a.end) }))
+    .filter(a => now >= a.startMs && now <= a.endMs);
 
   if (activeList.length === 0) return;
 
+  // ถ้าชนกันหลายอัน ให้เอาอันแรกตามลำดับ array
+  const current = activeList[0];
+
+  // วันละครั้ง: ต่อประกาศ + ต่อวัน
+  const onceKey = `announceShown:${current.id}:${todayTH()}`;
+  if (localStorage.getItem(onceKey) === "1") return;
+
   // =========================
-  // ลำดับต่อวัน
+  // Show / Close
   // =========================
-  const stepKey = `announceStep:${today}`;
-  let step = Number(localStorage.getItem(stepKey) || 0);
+  function showAnnouncement() {
+    // reset
+    linkWrap.hidden = true;
+    plainImg.hidden = true;
+    imgInLink.src = "";
+    plainImg.src = "";
 
-  if (step >= activeList.length) return; // วันนี้ดูครบแล้ว
+    // ถ้ารูปโหลดพัง ให้ปิดทันทีไม่ค้าง
+    const onImgError = () => {
+      console.warn("[Announcement] Image failed to load:", current.imageSrc);
+      closeAnnouncement(false); // ไม่ mark ว่า seen (กันหายเงียบ)
+    };
 
-  // =========================
-  // Show current step
-  // =========================
-  const current = activeList[step];
+    const useLink = !!(current.linkToFull && current.linkToFull.trim());
 
-  img.src = current.imageSrc;
-  if (link) link.href = current.linkToFull || current.imageSrc;
-
-  overlay.hidden = false;
-  document.body.style.overflow = "hidden";
-
-  const close = () => {
-    overlay.hidden = true;
-    document.body.style.overflow = "";
-
-    // ขยับไปภาพถัดไป
-    localStorage.setItem(stepKey, String(step + 1));
-
-    // ถ้ามีภาพถัดไป → เด้งต่อทันที
-    if (step + 1 < activeList.length) {
-      setTimeout(() => {
-        location.reload(); // โหลดใหม่เพื่อเรียก step ถัดไป
-      }, 150);
+    if (useLink) {
+      linkWrap.href = current.linkToFull.trim();
+      linkWrap.hidden = false;
+      imgInLink.hidden = false;
+      imgInLink.onerror = onImgError;
+      imgInLink.src = current.imageSrc;
+    } else {
+      plainImg.hidden = false;
+      plainImg.onerror = onImgError;
+      plainImg.src = current.imageSrc;
     }
-  };
 
-  closeBtn.addEventListener("click", close);
+    overlay.hidden = false;
+    overlay.setAttribute("aria-hidden", "false");
+    document.body.classList.add("announce-open");
+  }
+
+  function closeAnnouncement(markSeen = true) {
+    overlay.hidden = true;
+    overlay.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("announce-open");
+
+    if (markSeen) localStorage.setItem(onceKey, "1");
+  }
+
+  // ปุ่มปิด
+  cardClose.addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeAnnouncement(true);
+  });
+
+  // กดพื้นหลังมืดเพื่อปิด
   overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) close();
+    if (e.target === overlay) closeAnnouncement(true);
   });
+
+  // ESC เพื่อปิด
   window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !overlay.hidden) close();
+    if (e.key === "Escape" && !overlay.hidden) closeAnnouncement(true);
   });
+
+  showAnnouncement();
 })();
+
